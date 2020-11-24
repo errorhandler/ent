@@ -418,7 +418,7 @@ func (bq *BlobQuery) sqlAll(ctx context.Context) ([]*Blob, error) {
 		ids := make([]uuid.UUID, 0, len(nodes))
 		nodeids := make(map[uuid.UUID][]*Blob)
 		for i := range nodes {
-			if fk := nodes[i].blob_parent; fk != nil {
+			if fk := nodes[i].BlobParent; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -431,7 +431,7 @@ func (bq *BlobQuery) sqlAll(ctx context.Context) ([]*Blob, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "blob_parent" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "BlobParent" returned %v`, n.ID)
 			}
 			for i := range nodes {
 				nodes[i].Edges.Parent = n

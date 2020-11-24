@@ -467,13 +467,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.user_cards
+			fk := n.UserCards
 			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "user_cards" is nil for node %v`, n.ID)
+				return nil, fmt.Errorf(`foreign-key "UserCards" is nil for node %v`, n.ID)
 			}
 			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_cards" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "UserCards" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Cards = append(node.Edges.Cards, n)
 		}
@@ -547,7 +547,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*User)
 		for i := range nodes {
-			if fk := nodes[i].user_best_friend; fk != nil {
+			if fk := nodes[i].UserBestFriend; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -560,7 +560,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_best_friend" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "UserBestFriend" returned %v`, n.ID)
 			}
 			for i := range nodes {
 				nodes[i].Edges.BestFriend = n

@@ -22,9 +22,9 @@ type Pet struct {
 	ID string `json:"id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PetQuery when eager-loading is set.
-	Edges           PetEdges `json:"edges"`
-	pet_best_friend *string
-	user_pets       *int
+	Edges         PetEdges `json:"edges"`
+	PetBestFriend *string
+	UserPets      *int
 }
 
 // PetEdges holds the relations/edges for other nodes in the graph.
@@ -98,8 +98,8 @@ func (*Pet) scanValues() []interface{} {
 // fkValues returns the types for scanning foreign-keys values from sql.Rows.
 func (*Pet) fkValues() []interface{} {
 	return []interface{}{
-		&sql.NullString{}, // pet_best_friend
-		&sql.NullInt64{},  // user_pets
+		&sql.NullString{}, // PetBestFriend
+		&sql.NullInt64{},  // UserPets
 	}
 }
 
@@ -117,16 +117,16 @@ func (pe *Pet) assignValues(values ...interface{}) error {
 	values = values[1:]
 	if len(values) == len(pet.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullString); !ok {
-			return fmt.Errorf("unexpected type %T for field pet_best_friend", values[0])
+			return fmt.Errorf("unexpected type %T for field PetBestFriend", values[0])
 		} else if value.Valid {
-			pe.pet_best_friend = new(string)
-			*pe.pet_best_friend = value.String
+			pe.PetBestFriend = new(string)
+			*pe.PetBestFriend = value.String
 		}
 		if value, ok := values[1].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field user_pets", value)
+			return fmt.Errorf("unexpected type %T for edge-field UserPets", value)
 		} else if value.Valid {
-			pe.user_pets = new(int)
-			*pe.user_pets = int(value.Int64)
+			pe.UserPets = new(int)
+			*pe.UserPets = int(value.Int64)
 		}
 	}
 	return nil

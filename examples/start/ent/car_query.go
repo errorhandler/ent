@@ -381,7 +381,7 @@ func (cq *CarQuery) sqlAll(ctx context.Context) ([]*Car, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*Car)
 		for i := range nodes {
-			if fk := nodes[i].user_cars; fk != nil {
+			if fk := nodes[i].UserCars; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -394,7 +394,7 @@ func (cq *CarQuery) sqlAll(ctx context.Context) ([]*Car, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_cars" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "UserCars" returned %v`, n.ID)
 			}
 			for i := range nodes {
 				nodes[i].Edges.Owner = n

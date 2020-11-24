@@ -41,10 +41,10 @@ type User struct {
 	SSOCert string `json:"SSOCert,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
-	Edges         UserEdges `json:"edges"`
-	group_blocked *int
-	user_spouse   *int
-	user_parent   *int
+	Edges        UserEdges `json:"edges"`
+	GroupBlocked *int
+	UserSpouse   *int
+	UserParent   *int
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
@@ -214,9 +214,9 @@ func (*User) scanValues() []interface{} {
 // fkValues returns the types for scanning foreign-keys values from sql.Rows.
 func (*User) fkValues() []interface{} {
 	return []interface{}{
-		&sql.NullInt64{}, // group_blocked
-		&sql.NullInt64{}, // user_spouse
-		&sql.NullInt64{}, // user_parent
+		&sql.NullInt64{}, // GroupBlocked
+		&sql.NullInt64{}, // UserSpouse
+		&sql.NullInt64{}, // UserParent
 	}
 }
 
@@ -280,22 +280,22 @@ func (u *User) assignValues(values ...interface{}) error {
 	values = values[9:]
 	if len(values) == len(user.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field group_blocked", value)
+			return fmt.Errorf("unexpected type %T for edge-field GroupBlocked", value)
 		} else if value.Valid {
-			u.group_blocked = new(int)
-			*u.group_blocked = int(value.Int64)
+			u.GroupBlocked = new(int)
+			*u.GroupBlocked = int(value.Int64)
 		}
 		if value, ok := values[1].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field user_spouse", value)
+			return fmt.Errorf("unexpected type %T for edge-field UserSpouse", value)
 		} else if value.Valid {
-			u.user_spouse = new(int)
-			*u.user_spouse = int(value.Int64)
+			u.UserSpouse = new(int)
+			*u.UserSpouse = int(value.Int64)
 		}
 		if value, ok := values[2].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field user_parent", value)
+			return fmt.Errorf("unexpected type %T for edge-field UserParent", value)
 		} else if value.Valid {
-			u.user_parent = new(int)
-			*u.user_parent = int(value.Int64)
+			u.UserParent = new(int)
+			*u.UserParent = int(value.Int64)
 		}
 	}
 	return nil

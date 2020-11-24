@@ -456,7 +456,7 @@ func (fq *FileQuery) sqlAll(ctx context.Context) ([]*File, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*File)
 		for i := range nodes {
-			if fk := nodes[i].user_files; fk != nil {
+			if fk := nodes[i].UserFiles; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -469,7 +469,7 @@ func (fq *FileQuery) sqlAll(ctx context.Context) ([]*File, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_files" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "UserFiles" returned %v`, n.ID)
 			}
 			for i := range nodes {
 				nodes[i].Edges.Owner = n
@@ -481,7 +481,7 @@ func (fq *FileQuery) sqlAll(ctx context.Context) ([]*File, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*File)
 		for i := range nodes {
-			if fk := nodes[i].file_type_files; fk != nil {
+			if fk := nodes[i].FileTypeFiles; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -494,7 +494,7 @@ func (fq *FileQuery) sqlAll(ctx context.Context) ([]*File, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "file_type_files" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "FileTypeFiles" returned %v`, n.ID)
 			}
 			for i := range nodes {
 				nodes[i].Edges.Type = n
@@ -519,13 +519,13 @@ func (fq *FileQuery) sqlAll(ctx context.Context) ([]*File, error) {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.file_field
+			fk := n.FileField
 			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "file_field" is nil for node %v`, n.ID)
+				return nil, fmt.Errorf(`foreign-key "FileField" is nil for node %v`, n.ID)
 			}
 			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "file_field" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "FileField" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Field = append(node.Edges.Field, n)
 		}

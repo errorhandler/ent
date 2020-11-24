@@ -486,7 +486,7 @@ func (tq *TaskQuery) sqlAll(ctx context.Context) ([]*Task, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*Task)
 		for i := range nodes {
-			if fk := nodes[i].user_tasks; fk != nil {
+			if fk := nodes[i].UserTasks; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -499,7 +499,7 @@ func (tq *TaskQuery) sqlAll(ctx context.Context) ([]*Task, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_tasks" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "UserTasks" returned %v`, n.ID)
 			}
 			for i := range nodes {
 				nodes[i].Edges.Owner = n

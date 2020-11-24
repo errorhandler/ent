@@ -384,13 +384,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.user_pets
+			fk := n.UserPets
 			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "user_pets" is nil for node %v`, n.ID)
+				return nil, fmt.Errorf(`foreign-key "UserPets" is nil for node %v`, n.ID)
 			}
 			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_pets" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "UserPets" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Pets = append(node.Edges.Pets, n)
 		}

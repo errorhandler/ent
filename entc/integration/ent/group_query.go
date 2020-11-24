@@ -505,13 +505,13 @@ func (gq *GroupQuery) sqlAll(ctx context.Context) ([]*Group, error) {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.group_files
+			fk := n.GroupFiles
 			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "group_files" is nil for node %v`, n.ID)
+				return nil, fmt.Errorf(`foreign-key "GroupFiles" is nil for node %v`, n.ID)
 			}
 			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "group_files" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "GroupFiles" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Files = append(node.Edges.Files, n)
 		}
@@ -534,13 +534,13 @@ func (gq *GroupQuery) sqlAll(ctx context.Context) ([]*Group, error) {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.group_blocked
+			fk := n.GroupBlocked
 			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "group_blocked" is nil for node %v`, n.ID)
+				return nil, fmt.Errorf(`foreign-key "GroupBlocked" is nil for node %v`, n.ID)
 			}
 			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "group_blocked" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "GroupBlocked" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Blocked = append(node.Edges.Blocked, n)
 		}
@@ -614,7 +614,7 @@ func (gq *GroupQuery) sqlAll(ctx context.Context) ([]*Group, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*Group)
 		for i := range nodes {
-			if fk := nodes[i].group_info; fk != nil {
+			if fk := nodes[i].GroupInfo; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -627,7 +627,7 @@ func (gq *GroupQuery) sqlAll(ctx context.Context) ([]*Group, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "group_info" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "GroupInfo" returned %v`, n.ID)
 			}
 			for i := range nodes {
 				nodes[i].Edges.Info = n

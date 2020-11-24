@@ -118,8 +118,8 @@ type FieldType struct {
 	// MAC holds the value of the "mac" field.
 	MAC schema.MAC `json:"mac,omitempty"`
 	// UUID holds the value of the "uuid" field.
-	UUID       uuid.UUID `json:"uuid,omitempty"`
-	file_field *int
+	UUID      uuid.UUID `json:"uuid,omitempty"`
+	FileField *int
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -179,7 +179,7 @@ func (*FieldType) scanValues() []interface{} {
 // fkValues returns the types for scanning foreign-keys values from sql.Rows.
 func (*FieldType) fkValues() []interface{} {
 	return []interface{}{
-		&sql.NullInt64{}, // file_field
+		&sql.NullInt64{}, // FileField
 	}
 }
 
@@ -440,10 +440,10 @@ func (ft *FieldType) assignValues(values ...interface{}) error {
 	values = values[47:]
 	if len(values) == len(fieldtype.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field file_field", value)
+			return fmt.Errorf("unexpected type %T for edge-field FileField", value)
 		} else if value.Valid {
-			ft.file_field = new(int)
-			*ft.file_field = int(value.Int64)
+			ft.FileField = new(int)
+			*ft.FileField = int(value.Int64)
 		}
 	}
 	return nil

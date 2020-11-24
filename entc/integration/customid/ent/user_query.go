@@ -531,7 +531,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*User)
 		for i := range nodes {
-			if fk := nodes[i].user_children; fk != nil {
+			if fk := nodes[i].UserChildren; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
@@ -544,7 +544,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_children" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "UserChildren" returned %v`, n.ID)
 			}
 			for i := range nodes {
 				nodes[i].Edges.Parent = n
@@ -569,13 +569,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.user_children
+			fk := n.UserChildren
 			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "user_children" is nil for node %v`, n.ID)
+				return nil, fmt.Errorf(`foreign-key "UserChildren" is nil for node %v`, n.ID)
 			}
 			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_children" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "UserChildren" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Children = append(node.Edges.Children, n)
 		}
@@ -598,13 +598,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.user_pets
+			fk := n.UserPets
 			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "user_pets" is nil for node %v`, n.ID)
+				return nil, fmt.Errorf(`foreign-key "UserPets" is nil for node %v`, n.ID)
 			}
 			node, ok := nodeids[*fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "user_pets" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "UserPets" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Pets = append(node.Edges.Pets, n)
 		}

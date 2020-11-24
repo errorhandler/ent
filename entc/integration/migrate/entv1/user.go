@@ -40,9 +40,9 @@ type User struct {
 	Workplace string `json:"workplace,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
-	Edges         UserEdges `json:"edges"`
-	user_children *int
-	user_spouse   *int
+	Edges        UserEdges `json:"edges"`
+	UserChildren *int
+	UserSpouse   *int
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
@@ -130,8 +130,8 @@ func (*User) scanValues() []interface{} {
 // fkValues returns the types for scanning foreign-keys values from sql.Rows.
 func (*User) fkValues() []interface{} {
 	return []interface{}{
-		&sql.NullInt64{}, // user_children
-		&sql.NullInt64{}, // user_spouse
+		&sql.NullInt64{}, // UserChildren
+		&sql.NullInt64{}, // UserSpouse
 	}
 }
 
@@ -195,16 +195,16 @@ func (u *User) assignValues(values ...interface{}) error {
 	values = values[9:]
 	if len(values) == len(user.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field user_children", value)
+			return fmt.Errorf("unexpected type %T for edge-field UserChildren", value)
 		} else if value.Valid {
-			u.user_children = new(int)
-			*u.user_children = int(value.Int64)
+			u.UserChildren = new(int)
+			*u.UserChildren = int(value.Int64)
 		}
 		if value, ok := values[1].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field user_spouse", value)
+			return fmt.Errorf("unexpected type %T for edge-field UserSpouse", value)
 		} else if value.Valid {
-			u.user_spouse = new(int)
-			*u.user_spouse = int(value.Int64)
+			u.UserSpouse = new(int)
+			*u.UserSpouse = int(value.Int64)
 		}
 	}
 	return nil
