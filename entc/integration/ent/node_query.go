@@ -31,7 +31,6 @@ type NodeQuery struct {
 	// eager-loading edges.
 	withPrev *NodeQuery
 	withNext *NodeQuery
-	withFKs  bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -376,26 +375,18 @@ func (nq *NodeQuery) prepareQuery(ctx context.Context) error {
 func (nq *NodeQuery) sqlAll(ctx context.Context) ([]*Node, error) {
 	var (
 		nodes       = []*Node{}
-		withFKs     = nq.withFKs
 		_spec       = nq.querySpec()
 		loadedTypes = [2]bool{
 			nq.withPrev != nil,
 			nq.withNext != nil,
 		}
 	)
-	if nq.withPrev != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, node.ForeignKeys...)
-	}
+	_spec.Node.Columns = append(_spec.Node.Columns, node.ForeignKeys...)
 	_spec.ScanValues = func() []interface{} {
 		node := &Node{config: nq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
+		values = append(values, node.fkValues()...)
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -445,7 +436,6 @@ func (nq *NodeQuery) sqlAll(ctx context.Context) ([]*Node, error) {
 			fks = append(fks, nodes[i].ID)
 			nodeids[nodes[i].ID] = nodes[i]
 		}
-		query.withFKs = true
 		query.Where(predicate.Node(func(s *sql.Selector) {
 			s.Where(sql.InValues(node.NextColumn, fks...))
 		}))

@@ -33,7 +33,6 @@ type CardQuery struct {
 	// eager-loading edges.
 	withOwner *UserQuery
 	withSpec  *SpecQuery
-	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -378,26 +377,18 @@ func (cq *CardQuery) prepareQuery(ctx context.Context) error {
 func (cq *CardQuery) sqlAll(ctx context.Context) ([]*Card, error) {
 	var (
 		nodes       = []*Card{}
-		withFKs     = cq.withFKs
 		_spec       = cq.querySpec()
 		loadedTypes = [2]bool{
 			cq.withOwner != nil,
 			cq.withSpec != nil,
 		}
 	)
-	if cq.withOwner != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, card.ForeignKeys...)
-	}
+	_spec.Node.Columns = append(_spec.Node.Columns, card.ForeignKeys...)
 	_spec.ScanValues = func() []interface{} {
 		node := &Card{config: cq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
+		values = append(values, node.fkValues()...)
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {

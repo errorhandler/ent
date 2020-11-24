@@ -32,7 +32,6 @@ type BlobQuery struct {
 	// eager-loading edges.
 	withParent *BlobQuery
 	withLinks  *BlobQuery
-	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -377,26 +376,18 @@ func (bq *BlobQuery) prepareQuery(ctx context.Context) error {
 func (bq *BlobQuery) sqlAll(ctx context.Context) ([]*Blob, error) {
 	var (
 		nodes       = []*Blob{}
-		withFKs     = bq.withFKs
 		_spec       = bq.querySpec()
 		loadedTypes = [2]bool{
 			bq.withParent != nil,
 			bq.withLinks != nil,
 		}
 	)
-	if bq.withParent != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, blob.ForeignKeys...)
-	}
+	_spec.Node.Columns = append(_spec.Node.Columns, blob.ForeignKeys...)
 	_spec.ScanValues = func() []interface{} {
 		node := &Blob{config: bq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
+		values = append(values, node.fkValues()...)
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {

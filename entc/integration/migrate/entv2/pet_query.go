@@ -30,7 +30,6 @@ type PetQuery struct {
 	predicates []predicate.Pet
 	// eager-loading edges.
 	withOwner *UserQuery
-	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -317,25 +316,17 @@ func (pq *PetQuery) prepareQuery(ctx context.Context) error {
 func (pq *PetQuery) sqlAll(ctx context.Context) ([]*Pet, error) {
 	var (
 		nodes       = []*Pet{}
-		withFKs     = pq.withFKs
 		_spec       = pq.querySpec()
 		loadedTypes = [1]bool{
 			pq.withOwner != nil,
 		}
 	)
-	if pq.withOwner != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, pet.ForeignKeys...)
-	}
+	_spec.Node.Columns = append(_spec.Node.Columns, pet.ForeignKeys...)
 	_spec.ScanValues = func() []interface{} {
 		node := &Pet{config: pq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
+		values = append(values, node.fkValues()...)
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {

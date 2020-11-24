@@ -35,7 +35,6 @@ type FileQuery struct {
 	withOwner *UserQuery
 	withType  *FileTypeQuery
 	withField *FieldTypeQuery
-	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -414,7 +413,6 @@ func (fq *FileQuery) prepareQuery(ctx context.Context) error {
 func (fq *FileQuery) sqlAll(ctx context.Context) ([]*File, error) {
 	var (
 		nodes       = []*File{}
-		withFKs     = fq.withFKs
 		_spec       = fq.querySpec()
 		loadedTypes = [3]bool{
 			fq.withOwner != nil,
@@ -422,19 +420,12 @@ func (fq *FileQuery) sqlAll(ctx context.Context) ([]*File, error) {
 			fq.withField != nil,
 		}
 	)
-	if fq.withOwner != nil || fq.withType != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, file.ForeignKeys...)
-	}
+	_spec.Node.Columns = append(_spec.Node.Columns, file.ForeignKeys...)
 	_spec.ScanValues = func() []interface{} {
 		node := &File{config: fq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
+		values = append(values, node.fkValues()...)
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -510,7 +501,6 @@ func (fq *FileQuery) sqlAll(ctx context.Context) ([]*File, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 			nodes[i].Edges.Field = []*FieldType{}
 		}
-		query.withFKs = true
 		query.Where(predicate.FieldType(func(s *sql.Selector) {
 			s.Where(sql.InValues(file.FieldColumn, fks...))
 		}))

@@ -375,7 +375,6 @@ func (giq *GroupInfoQuery) sqlAll(ctx context.Context) ([]*GroupInfo, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 			nodes[i].Edges.Groups = []*Group{}
 		}
-		query.withFKs = true
 		query.Where(predicate.Group(func(s *sql.Selector) {
 			s.Where(sql.InValues(groupinfo.GroupsColumn, fks...))
 		}))

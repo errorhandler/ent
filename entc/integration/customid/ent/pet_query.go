@@ -35,7 +35,6 @@ type PetQuery struct {
 	withCars       *CarQuery
 	withFriends    *PetQuery
 	withBestFriend *PetQuery
-	withFKs        bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -424,7 +423,6 @@ func (pq *PetQuery) prepareQuery(ctx context.Context) error {
 func (pq *PetQuery) sqlAll(ctx context.Context) ([]*Pet, error) {
 	var (
 		nodes       = []*Pet{}
-		withFKs     = pq.withFKs
 		_spec       = pq.querySpec()
 		loadedTypes = [4]bool{
 			pq.withOwner != nil,
@@ -433,19 +431,12 @@ func (pq *PetQuery) sqlAll(ctx context.Context) ([]*Pet, error) {
 			pq.withBestFriend != nil,
 		}
 	)
-	if pq.withOwner != nil || pq.withBestFriend != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, pet.ForeignKeys...)
-	}
+	_spec.Node.Columns = append(_spec.Node.Columns, pet.ForeignKeys...)
 	_spec.ScanValues = func() []interface{} {
 		node := &Pet{config: pq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
+		values = append(values, node.fkValues()...)
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -496,7 +487,6 @@ func (pq *PetQuery) sqlAll(ctx context.Context) ([]*Pet, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 			nodes[i].Edges.Cars = []*Car{}
 		}
-		query.withFKs = true
 		query.Where(predicate.Car(func(s *sql.Selector) {
 			s.Where(sql.InValues(pet.CarsColumn, fks...))
 		}))

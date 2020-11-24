@@ -30,7 +30,6 @@ type StreetQuery struct {
 	predicates []predicate.Street
 	// eager-loading edges.
 	withCity *CityQuery
-	withFKs  bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -341,25 +340,17 @@ func (sq *StreetQuery) prepareQuery(ctx context.Context) error {
 func (sq *StreetQuery) sqlAll(ctx context.Context) ([]*Street, error) {
 	var (
 		nodes       = []*Street{}
-		withFKs     = sq.withFKs
 		_spec       = sq.querySpec()
 		loadedTypes = [1]bool{
 			sq.withCity != nil,
 		}
 	)
-	if sq.withCity != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, street.ForeignKeys...)
-	}
+	_spec.Node.Columns = append(_spec.Node.Columns, street.ForeignKeys...)
 	_spec.ScanValues = func() []interface{} {
 		node := &Street{config: sq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
+		values = append(values, node.fkValues()...)
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {

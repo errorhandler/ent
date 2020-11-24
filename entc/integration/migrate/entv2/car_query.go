@@ -30,7 +30,6 @@ type CarQuery struct {
 	predicates []predicate.Car
 	// eager-loading edges.
 	withOwner *UserQuery
-	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -317,25 +316,17 @@ func (cq *CarQuery) prepareQuery(ctx context.Context) error {
 func (cq *CarQuery) sqlAll(ctx context.Context) ([]*Car, error) {
 	var (
 		nodes       = []*Car{}
-		withFKs     = cq.withFKs
 		_spec       = cq.querySpec()
 		loadedTypes = [1]bool{
 			cq.withOwner != nil,
 		}
 	)
-	if cq.withOwner != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, car.ForeignKeys...)
-	}
+	_spec.Node.Columns = append(_spec.Node.Columns, car.ForeignKeys...)
 	_spec.ScanValues = func() []interface{} {
 		node := &Car{config: cq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
+		values = append(values, node.fkValues()...)
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {

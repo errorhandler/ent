@@ -375,7 +375,6 @@ func (cq *CityQuery) sqlAll(ctx context.Context) ([]*City, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 			nodes[i].Edges.Streets = []*Street{}
 		}
-		query.withFKs = true
 		query.Where(predicate.Street(func(s *sql.Selector) {
 			s.Where(sql.InValues(city.StreetsColumn, fks...))
 		}))

@@ -484,7 +484,6 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 			nodes[i].Edges.Pets = []*Pet{}
 		}
-		query.withFKs = true
 		query.Where(predicate.Pet(func(s *sql.Selector) {
 			s.Where(sql.InValues(user.PetsColumn, fks...))
 		}))
@@ -641,7 +640,6 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 			nodes[i].Edges.Manage = []*Group{}
 		}
-		query.withFKs = true
 		query.Where(predicate.Group(func(s *sql.Selector) {
 			s.Where(sql.InValues(user.ManageColumn, fks...))
 		}))

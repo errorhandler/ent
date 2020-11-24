@@ -375,7 +375,6 @@ func (ftq *FileTypeQuery) sqlAll(ctx context.Context) ([]*FileType, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 			nodes[i].Edges.Files = []*File{}
 		}
-		query.withFKs = true
 		query.Where(predicate.File(func(s *sql.Selector) {
 			s.Where(sql.InValues(filetype.FilesColumn, fks...))
 		}))

@@ -36,7 +36,6 @@ type GroupQuery struct {
 	withBlocked *UserQuery
 	withUsers   *UserQuery
 	withInfo    *GroupInfoQuery
-	withFKs     bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -449,7 +448,6 @@ func (gq *GroupQuery) prepareQuery(ctx context.Context) error {
 func (gq *GroupQuery) sqlAll(ctx context.Context) ([]*Group, error) {
 	var (
 		nodes       = []*Group{}
-		withFKs     = gq.withFKs
 		_spec       = gq.querySpec()
 		loadedTypes = [4]bool{
 			gq.withFiles != nil,
@@ -458,19 +456,12 @@ func (gq *GroupQuery) sqlAll(ctx context.Context) ([]*Group, error) {
 			gq.withInfo != nil,
 		}
 	)
-	if gq.withInfo != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, group.ForeignKeys...)
-	}
+	_spec.Node.Columns = append(_spec.Node.Columns, group.ForeignKeys...)
 	_spec.ScanValues = func() []interface{} {
 		node := &Group{config: gq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
+		values = append(values, node.fkValues()...)
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -496,7 +487,6 @@ func (gq *GroupQuery) sqlAll(ctx context.Context) ([]*Group, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 			nodes[i].Edges.Files = []*File{}
 		}
-		query.withFKs = true
 		query.Where(predicate.File(func(s *sql.Selector) {
 			s.Where(sql.InValues(group.FilesColumn, fks...))
 		}))
@@ -525,7 +515,6 @@ func (gq *GroupQuery) sqlAll(ctx context.Context) ([]*Group, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 			nodes[i].Edges.Blocked = []*User{}
 		}
-		query.withFKs = true
 		query.Where(predicate.User(func(s *sql.Selector) {
 			s.Where(sql.InValues(group.BlockedColumn, fks...))
 		}))

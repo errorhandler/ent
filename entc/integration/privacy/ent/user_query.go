@@ -479,7 +479,6 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 			nodes[i].Edges.Tasks = []*Task{}
 		}
-		query.withFKs = true
 		query.Where(predicate.Task(func(s *sql.Selector) {
 			s.Where(sql.InValues(user.TasksColumn, fks...))
 		}))

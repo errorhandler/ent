@@ -33,7 +33,6 @@ type UserQuery struct {
 	withCards      *CardQuery
 	withFriends    *UserQuery
 	withBestFriend *UserQuery
-	withFKs        bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -412,7 +411,6 @@ func (uq *UserQuery) prepareQuery(ctx context.Context) error {
 func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 	var (
 		nodes       = []*User{}
-		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
 		loadedTypes = [3]bool{
 			uq.withCards != nil,
@@ -420,19 +418,12 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 			uq.withBestFriend != nil,
 		}
 	)
-	if uq.withBestFriend != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, user.ForeignKeys...)
-	}
+	_spec.Node.Columns = append(_spec.Node.Columns, user.ForeignKeys...)
 	_spec.ScanValues = func() []interface{} {
 		node := &User{config: uq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
+		values = append(values, node.fkValues()...)
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -458,7 +449,6 @@ func (uq *UserQuery) sqlAll(ctx context.Context) ([]*User, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 			nodes[i].Edges.Cards = []*Card{}
 		}
-		query.withFKs = true
 		query.Where(predicate.Card(func(s *sql.Selector) {
 			s.Where(sql.InValues(user.CardsColumn, fks...))
 		}))

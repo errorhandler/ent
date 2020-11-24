@@ -4,13 +4,6 @@ This source code is licensed under the Apache 2.0 license found
 in the LICENSE file in the root directory of this source tree.
 */}}
 
-{{/* Additional fields for the builder. */}}
-{{ define "dialect/sql/query/fields" }}
-	{{- with $.ForeignKeys }}
-		withFKs bool
-	{{- end }}
-{{- end }}
-
 {{ define "dialect/sql/query" }}
 {{ $pkg := $.Scope.Package }}
 {{ $builder := pascal $.Scope.Builder }}
@@ -19,9 +12,6 @@ in the LICENSE file in the root directory of this source tree.
 func ({{ $receiver }} *{{ $builder }}) sqlAll(ctx context.Context) ([]*{{ $.Name }}, error) {
 	var (
 		nodes = []*{{ $.Name }}{}
-		{{- with $.ForeignKeys }}
-			withFKs = {{ $receiver }}.withFKs
-		{{- end }}
 		_spec = {{ $receiver }}.querySpec()
 		{{- with $.Edges }}
 			loadedTypes = [{{ len . }}]bool{
@@ -32,23 +22,14 @@ func ({{ $receiver }} *{{ $builder }}) sqlAll(ctx context.Context) ([]*{{ $.Name
 		{{- end }}
 	)
 	{{- with $.ForeignKeys }}
-			{{- with $.FKEdges }}
-				if {{ range $i, $e := . }}{{ if gt $i 0 }} || {{ end }}{{ $receiver }}.{{ $e.EagerLoadField }} != nil{{ end }} {
-					withFKs = true
-				}
-			{{- end }}
-			if withFKs {
 				_spec.Node.Columns = append(_spec.Node.Columns, {{ $.Package }}.ForeignKeys...)
-			}
 	{{- end }}
 	_spec.ScanValues = func() []interface{} {
 		node := &{{ $.Name }}{config: {{ $receiver }}.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
 		{{- with $.ForeignKeys }}
-			if withFKs {
-				values = append(values, node.fkValues()...)
-			}
+		values = append(values, node.fkValues()...)
 		{{- end }}
 		return values
 	}
@@ -296,7 +277,6 @@ func ({{ $receiver }} *{{ $builder }}) sqlQuery() *sql.Selector {
 					nodes[i].Edges.{{ $e.StructField }} = []*{{ $e.Type.Name }}{}
 				{{- end }}
 			}
-			query.withFKs = true
 			query.Where(predicate.{{ $e.Type.Name }}(func(s *sql.Selector) {
 				s.Where(sql.InValues({{ $.Package }}.{{ $e.ColumnConstant }}, fks...))
 			}))
