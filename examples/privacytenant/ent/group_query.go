@@ -413,10 +413,9 @@ func (gq *GroupQuery) sqlAll(ctx context.Context) ([]*Group, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*Group)
 		for i := range nodes {
-			if fk := nodes[i].GroupTenant; fk != nil {
-				ids = append(ids, *fk)
-				nodeids[*fk] = append(nodeids[*fk], nodes[i])
-			}
+			fk := nodes[i].GroupTenant
+			ids = append(ids, fk)
+			nodeids[fk] = append(nodeids[fk], nodes[i])
 		}
 		query.Where(tenant.IDIn(ids...))
 		neighbors, err := query.All(ctx)

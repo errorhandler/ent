@@ -118,6 +118,8 @@ type (
 		// Annotations that were defined for the edge in the schema.
 		// The mapping is from the Annotation.Name() to a JSON decoded object.
 		Annotations map[string]interface{}
+		ForeignKey  *ForeignKey
+		FKNillable  bool // deprecated
 	}
 
 	// Relation holds the relational database information for edges.
@@ -343,6 +345,16 @@ func (t Type) FKEdges() (edges []*Edge) {
 	return
 }
 
+func (t Type) EdgeForForeignKey(fk *ForeignKey) *Edge {
+	for _, e := range t.Edges {
+		if e.Rel.Table == t.Table() && e.Rel.Column() == fk.Field.StorageKey() {
+			return e
+		}
+	}
+
+	return nil
+}
+
 // RuntimeMixin returns schema mixin that needs to be loaded at
 // runtime. For example, for default values, validators or hooks.
 func (t Type) RuntimeMixin() bool {
@@ -540,8 +552,8 @@ func (t *Type) resolveFKs() error {
 			Field: &Field{
 				Name:        pascal(builderField(e.Rel.Column())),
 				Type:        refid.Type,
-				Nillable:    true,
-				Optional:    true,
+				Nillable:    e.FKNillable,
+				Optional:    e.FKNillable,
 				Unique:      e.Unique,
 				UserDefined: refid.UserDefined,
 			},
@@ -552,6 +564,7 @@ func (t *Type) resolveFKs() error {
 			e.Type.addFK(fk)
 		}
 	}
+
 	return nil
 }
 

@@ -371,6 +371,9 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := gc.mutation.InfoID(); ok {
+		_node.GroupInfo = id
+	}
 	return _node, _spec
 }
 

@@ -204,6 +204,9 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := uc.mutation.TenantID(); ok {
+		_node.UserTenant = id
+	}
 	return _node, _spec
 }
 

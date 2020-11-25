@@ -34,7 +34,7 @@ type Group struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the GroupQuery when eager-loading is set.
 	Edges     GroupEdges `json:"edges"`
-	GroupInfo *int
+	GroupInfo int
 }
 
 // GroupEdges holds the relations/edges for other nodes in the graph.
@@ -155,8 +155,7 @@ func (gr *Group) assignValues(values ...interface{}) error {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field GroupInfo", value)
 		} else if value.Valid {
-			gr.GroupInfo = new(int)
-			*gr.GroupInfo = int(value.Int64)
+			gr.GroupInfo = int(value.Int64)
 		}
 	}
 	return nil

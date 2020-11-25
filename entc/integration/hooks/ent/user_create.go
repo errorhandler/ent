@@ -281,6 +281,9 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := uc.mutation.BestFriendID(); ok {
+		_node.UserBestFriend = &id
+	}
 	return _node, _spec
 }
 

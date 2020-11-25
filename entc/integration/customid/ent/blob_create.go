@@ -212,6 +212,9 @@ func (bc *BlobCreate) createSpec() (*Blob, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := bc.mutation.ParentID(); ok {
+		_node.BlobParent = &id
+	}
 	return _node, _spec
 }
 

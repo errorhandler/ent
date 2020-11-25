@@ -194,6 +194,9 @@ func (nc *NodeCreate) createSpec() (*Node, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := nc.mutation.PrevID(); ok {
+		_node.NodeNext = &id
+	}
 	return _node, _spec
 }
 

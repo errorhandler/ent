@@ -248,10 +248,16 @@ func ({{ $receiver }} *{{ $builder }}) sqlQuery() *sql.Selector {
 			ids := make([]{{ $e.Type.ID.Type }}, 0, len(nodes))
 			nodeids := make(map[{{ $e.Type.ID.Type }}][]*{{ $.Name }})
 			for i := range nodes {
+			{{- if $e.FKNillable }}
 				if fk := nodes[i].{{ $e.StructFKField }}; fk != nil {
 					ids = append(ids, *fk)
 					nodeids[*fk] = append(nodeids[*fk], nodes[i])
 				}
+				{{- else }}
+				fk := nodes[i].{{ $e.StructFKField }}
+				ids = append(ids, fk)
+				nodeids[fk] = append(nodeids[fk], nodes[i])
+				{{- end }}
 			}
 			query.Where({{ $e.Type.Package }}.IDIn(ids...))
 			neighbors, err := query.All(ctx)
@@ -285,14 +291,22 @@ func ({{ $receiver }} *{{ $builder }}) sqlQuery() *sql.Selector {
 				return nil, err
 			}
 			for _, n := range neighbors {
-				fk := n.{{ $e.StructFKField }}
-				if fk == nil {
-					return nil, fmt.Errorf(`foreign-key "{{ $e.StructFKField }}" is nil for node %v`, n.ID)
-				}
-				node, ok := nodeids[*fk]
-				if !ok {
-					return nil, fmt.Errorf(`unexpected foreign-key "{{ $e.StructFKField }}" returned %v for node %v`, *fk, n.ID)
-				}
+				{{- if $e.FKNillable }}
+					fk := n.{{ $e.StructFKField }}
+					if fk == nil {
+						return nil, fmt.Errorf(`foreign-key "{{ $e.StructFKField }}" is nil for node %v`, n.ID)
+					}
+					node, ok := nodeids[*fk]
+					if !ok {
+						return nil, fmt.Errorf(`unexpected foreign-key "{{ $e.StructFKField }}" returned %v for node %v`, *fk, n.ID)
+					}
+				{{- else }}
+					fk := n.{{ $e.StructFKField }}
+					node, ok := nodeids[fk]
+					if !ok {
+						return nil, fmt.Errorf(`unexpected foreign-key "{{ $e.StructFKField }}" returned %v for node %v`, fk, n.ID)
+					}
+				{{- end }}
 				node.Edges.{{ $e.StructField }} = {{ if $e.Unique }}n{{ else }}append(node.Edges.{{ $e.StructField }}, n){{ end }}
 			}
 		{{- end }}

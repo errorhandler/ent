@@ -190,6 +190,9 @@ func (nc *NodeCreate) createSpec() (*Node, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := nc.mutation.ParentID(); ok {
+		_node.NodeChildren = &id
+	}
 	return _node, _spec
 }
 

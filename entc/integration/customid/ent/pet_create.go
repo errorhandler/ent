@@ -259,6 +259,12 @@ func (pc *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := pc.mutation.BestFriendID(); ok {
+		_node.PetBestFriend = &id
+	}
+	if id, ok := pc.mutation.OwnerID(); ok {
+		_node.UserPets = &id
+	}
 	return _node, _spec
 }
 

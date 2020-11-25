@@ -452,6 +452,12 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := uc.mutation.ParentID(); ok {
+		_node.UserChildren = &id
+	}
+	if id, ok := uc.mutation.SpouseID(); ok {
+		_node.UserSpouse = &id
+	}
 	return _node, _spec
 }
 

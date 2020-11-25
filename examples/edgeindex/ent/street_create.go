@@ -157,6 +157,9 @@ func (sc *StreetCreate) createSpec() (*Street, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := sc.mutation.CityID(); ok {
+		_node.CityStreets = &id
+	}
 	return _node, _spec
 }
 

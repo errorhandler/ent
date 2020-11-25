@@ -139,6 +139,9 @@ func (cc *CarCreate) createSpec() (*Car, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := cc.mutation.OwnerID(); ok {
+		_node.UserCar = &id
+	}
 	return _node, _spec
 }
 

@@ -191,6 +191,9 @@ func (gc *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := gc.mutation.AdminID(); ok {
+		_node.GroupAdmin = &id
+	}
 	return _node, _spec
 }
 

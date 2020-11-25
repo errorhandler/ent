@@ -273,6 +273,9 @@ func (tc *TaskCreate) createSpec() (*Task, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := tc.mutation.OwnerID(); ok {
+		_node.UserTasks = &id
+	}
 	return _node, _spec
 }
 

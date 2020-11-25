@@ -336,6 +336,12 @@ func (fc *FileCreate) createSpec() (*File, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := fc.mutation.TypeID(); ok {
+		_node.FileTypeFiles = &id
+	}
+	if id, ok := fc.mutation.OwnerID(); ok {
+		_node.UserFiles = &id
+	}
 	return _node, _spec
 }
 

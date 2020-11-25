@@ -248,6 +248,9 @@ func (cc *CardCreate) createSpec() (*Card, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := cc.mutation.OwnerID(); ok {
+		_node.UserCards = &id
+	}
 	return _node, _spec
 }
 

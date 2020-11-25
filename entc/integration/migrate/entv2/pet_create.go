@@ -139,6 +139,9 @@ func (pc *PetCreate) createSpec() (*Pet, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if id, ok := pc.mutation.OwnerID(); ok {
+		_node.OwnerID = &id
+	}
 	return _node, _spec
 }
 

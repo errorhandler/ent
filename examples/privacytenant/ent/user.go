@@ -25,7 +25,7 @@ type User struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges      UserEdges `json:"edges"`
-	UserTenant *int
+	UserTenant int
 }
 
 // UserEdges holds the relations/edges for other nodes in the graph.
@@ -99,8 +99,7 @@ func (u *User) assignValues(values ...interface{}) error {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field UserTenant", value)
 		} else if value.Valid {
-			u.UserTenant = new(int)
-			*u.UserTenant = int(value.Int64)
+			u.UserTenant = int(value.Int64)
 		}
 	}
 	return nil

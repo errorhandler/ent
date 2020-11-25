@@ -337,14 +337,18 @@ func resolve(t *Type) error {
 			// then inverse is M2O and the relation is in its table.
 			case a && b:
 				e.Rel.Type, ref.Rel.Type = O2O, O2O
+				e.FKNillable = ref.Optional
+				ref.FKNillable = ref.Optional
 			case !a && b:
 				e.Rel.Type, ref.Rel.Type = M2O, O2M
-
+				e.FKNillable = e.Optional
+				ref.FKNillable = e.Optional
 			// If the relation column is in the assoc side.
 			case a && !b:
 				e.Rel.Type, ref.Rel.Type = O2M, M2O
 				table = e.Type.Table()
-
+				e.FKNillable = ref.Optional
+				ref.FKNillable = ref.Optional
 			case !a && !b:
 				e.Rel.Type, ref.Rel.Type = M2M, M2M
 				table = e.Type.Label() + "_" + ref.Name
@@ -370,16 +374,21 @@ func resolve(t *Type) error {
 				e.Bidi = true
 				e.Rel.Table = t.Label() + "_" + e.Name
 				e.Rel.Columns = []string{e.Owner.Label() + "_id", rules.Singularize(e.Name) + "_id"}
+				e.FKNillable = true
 			case e.Unique && e.Type == t:
 				e.Rel.Type = O2O
 				e.Bidi = true
 				e.Rel.Table = t.Table()
+				e.FKNillable = e.Optional
 			case e.Unique:
 				e.Rel.Type = M2O
 				e.Rel.Table = t.Table()
+				e.FKNillable = e.Optional
 			default:
 				e.Rel.Type = O2M
+				e.FKNillable = e.Optional
 				e.Rel.Table = e.Type.Table()
+				e.FKNillable = e.Optional
 			}
 			if !e.M2M() {
 				e.Rel.Columns = []string{fmt.Sprintf("%s_%s", t.Label(), snake(e.Name))}
