@@ -17,7 +17,15 @@ func ({{ $receiver }} *{{ $builder }}) sqlSave(ctx context.Context) ({{ $ret }} 
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table: {{ $.Package }}.Table,
+			{{- with $.ForeignKeys }}
+			{{- if ($.FeatureEnabled "exposefks") }}
+			Columns: append({{ $.Package }}.Columns, {{ $.Package }}.ForeignKeys...),
+			{{- else }}
 			Columns: {{ $.Package }}.Columns,
+			{{- end }}
+			{{- else }}
+			Columns: {{ $.Package }}.Columns,
+			{{- end }}
 			ID: &sqlgraph.FieldSpec{
 				Type: field.{{ $.ID.Type.ConstName }},
 				Column: {{ $.Package }}.{{ $.ID.Constant }},
@@ -92,7 +100,15 @@ func ({{ $receiver }} *{{ $builder }}) sqlSave(ctx context.Context) ({{ $ret }} 
 	{{- if $one }}
 		{{ $ret }} = &{{ $.Name }}{config: {{ $receiver }}.config}
 		_spec.Assign = {{ $ret }}.assignValues
+		{{- with $.ForeignKeys }}
+		{{- if ($.FeatureEnabled "exposefks") }}
+		_spec.ScanValues = append({{ $ret }}.scanValues(), {{ $ret }}.fkValues()...)
+		{{- else }}
 		_spec.ScanValues = {{ $ret }}.scanValues()
+		{{- end }}
+		{{- else }}
+		_spec.ScanValues = {{ $ret }}.scanValues()
+		{{- end }}
 	{{- end }}
 	{{- if $one }}
 		if err = sqlgraph.UpdateNode(ctx, {{ $receiver }}.driver, _spec); err != nil {

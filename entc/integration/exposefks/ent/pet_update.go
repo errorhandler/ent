@@ -155,7 +155,7 @@ func (pu *PetUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   pet.Table,
-			Columns: pet.Columns,
+			Columns: append(pet.Columns, pet.ForeignKeys...),
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
 				Column: pet.FieldID,
@@ -386,7 +386,7 @@ func (puo *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   pet.Table,
-			Columns: pet.Columns,
+			Columns: append(pet.Columns, pet.ForeignKeys...),
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
 				Column: pet.FieldID,
@@ -477,7 +477,7 @@ func (puo *PetUpdateOne) sqlSave(ctx context.Context) (_node *Pet, err error) {
 	}
 	_node = &Pet{config: puo.config}
 	_spec.Assign = _node.assignValues
-	_spec.ScanValues = _node.scanValues()
+	_spec.ScanValues = append(_node.scanValues(), _node.fkValues()...)
 	if err = sqlgraph.UpdateNode(ctx, puo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{pet.Label}

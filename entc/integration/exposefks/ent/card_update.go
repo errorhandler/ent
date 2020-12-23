@@ -151,7 +151,7 @@ func (cu *CardUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   card.Table,
-			Columns: card.Columns,
+			Columns: append(card.Columns, card.ForeignKeys...),
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
 				Column: card.FieldID,
@@ -357,7 +357,7 @@ func (cuo *CardUpdateOne) sqlSave(ctx context.Context) (_node *Card, err error) 
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   card.Table,
-			Columns: card.Columns,
+			Columns: append(card.Columns, card.ForeignKeys...),
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
 				Column: card.FieldID,
@@ -426,7 +426,7 @@ func (cuo *CardUpdateOne) sqlSave(ctx context.Context) (_node *Card, err error) 
 	}
 	_node = &Card{config: cuo.config}
 	_spec.Assign = _node.assignValues
-	_spec.ScanValues = _node.scanValues()
+	_spec.ScanValues = append(_node.scanValues(), _node.fkValues()...)
 	if err = sqlgraph.UpdateNode(ctx, cuo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{card.Label}
